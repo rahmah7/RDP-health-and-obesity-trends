@@ -1,0 +1,62 @@
+# استيراد المكتبات الضرورية
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# تحميل البيانات
+df = pd.read_csv('health_obesity_data.csv')  # استبدل باسم ملفك
+
+# معاينة البيانات
+print("معاينة البيانات:")
+print(df.head())
+print("\nمعلومات عن البيانات:")
+print(df.info())
+print("\nإحصائيات البيانات:")
+print(df.describe())
+
+# تنظيف البيانات
+# معالجة القيم المفقودة
+df = df.fillna(method='ffill').fillna(method='bfill')  # تعبئة القيم المفقودة
+df.drop_duplicates(inplace=True)  # إزالة التكرارات
+
+# تحويل الأعمدة إلى الأنواع المناسبة (مثال)
+if 'Date' in df.columns:
+    df['Date'] = pd.to_datetime(df['Date'])
+
+# تحليل الاتجاهات
+# تحليل نسبة السمنة عبر السنوات
+if 'Year' in df.columns and 'Obesity Rate' in df.columns:
+    obesity_trends = df.groupby('Year')['Obesity Rate'].mean()
+    print("\nاتجاه السمنة عبر السنوات:")
+    print(obesity_trends)
+
+# تحليل العلاقة بين السمنة وعوامل أخرى
+if 'Obesity Rate' in df.columns and 'Exercise Rate' in df.columns:
+    correlation = df[['Obesity Rate', 'Exercise Rate']].corr()
+    print("\nالعلاقة بين نسبة السمنة ومعدل التمارين الرياضية:")
+    print(correlation)
+
+# رسم البيانات
+# رسم اتجاه السمنة عبر السنوات
+if 'Year' in df.columns and 'Obesity Rate' in df.columns:
+    plt.figure(figsize=(10, 6))
+    obesity_trends.plot(kind='line', color='blue')
+    plt.title('اتجاه نسبة السمنة عبر السنوات', fontsize=14)
+    plt.xlabel('السنة', fontsize=12)
+    plt.ylabel('نسبة السمنة (%)', fontsize=12)
+    plt.grid()
+    plt.show()
+
+# رسم العلاقة بين السمنة وعامل آخر
+if 'Obesity Rate' in df.columns and 'Exercise Rate' in df.columns:
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df, x='Exercise Rate', y='Obesity Rate', color='red')
+    plt.title('العلاقة بين السمنة ومعدل التمارين الرياضية', fontsize=14)
+    plt.xlabel('معدل التمارين الرياضية (%)', fontsize=12)
+    plt.ylabel('نسبة السمنة (%)', fontsize=12)
+    plt.grid()
+    plt.show()
+
+# استخراج البيانات المهمة (اختياري)
+df.to_csv('cleaned_health_obesity_data.csv', index=False)  # حفظ البيانات النظيفة
